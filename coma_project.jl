@@ -18,21 +18,24 @@ end
 
 function minMax(gState::GlobalState, state::Nim)::Real
     p::Real
-    if state.board < 5                          #ab 5 steinen kann man sich selbst einen Win garantieren
+    if state.board == 0                          
         if state.active == P1
-            return 1
-        else
             return -1
+        else
+            return 1
         end
     else
-        if state.active == P1
-            state.children = Nim(P2, state.board-1, state.moves, nothing)
-            state.children = Nim(P2, state.board-2, state.moves, nothing)
-            for i=0:keys(state.children)                                    #das habe ich  vllt komplett falsch verstanden
-                p=p+(MinMax(state.children[i][1]))                          #bilde die summe der werte der kinderknoten
-
+        if state.active == P1                                                #P1 Maximum
+            for j=0:length(colect(keys(state.moves)))                         
+                newChild=Nim(P2, (state.board-state.moves[j][1], state.moves, nothing)) #erstelle alle kinder 
+                push!(state.children, (newChild => MinMax(newChild)))                   # und berechne deren Wert
+            return max(collect(values(state.children)))
         end
-    
+        else
+            for j=0:length(colect(keys(state.moves)))                         
+                newChild=Nim(P2, (state.board-state.moves[j][1], state.moves, nothing))
+                push!(state.children, (newChild => MinMax(newChild))) 
+            return min(collect(values(state.children)))
 
 end
 
@@ -44,8 +47,13 @@ end
 
 
 
-#=  ohne children falls anzahl steine > 5 dann erstelle neue Node mit 
-active = anderer spieler; anzahl -1
-active = anderer spieler; anzhal -2
+#=  ohne children falls anzahl steine > 0 dann erstelle neue Node mit 
+active = anderer spieler; anzahl - moves
 
+rufe MinMax auf alle kinder auf 
+bei P1: return Maximum
+bei P2: return Minimum
+
+
+erst vollen graphen erstellen und dann durchmustern ist wohl einfacher
 =#
